@@ -7,7 +7,9 @@ package it.polito.tdp.newufosightings;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.newufosightings.model.Adiacenza;
 import it.polito.tdp.newufosightings.model.Model;
+import it.polito.tdp.newufosightings.model.State;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -50,17 +52,79 @@ public class NewUfoSightingsController {
 	private Button btnSimula; // Value injected by FXMLLoader
 
 	@FXML
-	void doCreaGrafo(ActionEvent event) {
+	void doSelezionaAnno(ActionEvent event) {
+		
+		txtResult.clear();
+		String input = txtAnno.getText().trim();
+		
+		try {
+			int anno = Integer.parseInt(input);
+			
+			if(anno < 1910 || anno > 2014) {
+				txtResult.appendText("Inserire un numero tra 1910 e 2014.");
+			}
+			
+			btnCreaGrafo.setDisable(false);
+			cmbBoxForma.setDisable(false);
+			
+			cmbBoxForma.getItems().clear();
+			
+			cmbBoxForma.getItems().addAll(this.model.getShapes(anno));
+			
+		}
+		
+		catch(NumberFormatException nfe) {
+			txtResult.appendText("Inserire un numero tra 1910 e 2014.");
+		}
 
 	}
-
+	
 	@FXML
-	void doSelezionaAnno(ActionEvent event) {
-
+	void doCreaGrafo(ActionEvent event) {
+		
+		txtResult.clear();
+		
+		String input = txtAnno.getText().trim();
+		int anno = Integer.parseInt(input);
+		
+		model.creaGrafo(anno, cmbBoxForma.getValue());
+		
+		for(State s : model.getStatiPesi().keySet()) {
+			txtResult.appendText(s.getName() + " - " + model.getStatiPesi().get(s) + "\n");
+		}
+		
+		txtT1.setDisable(false);
+		txtAlfa.setDisable(false);
+		btnSimula.setDisable(false);
+		
 	}
 
 	@FXML
 	void doSimula(ActionEvent event) {
+		
+		txtResult.clear();
+		String inputT1 = txtT1.getText().trim();
+		String inputAlfa = txtT1.getText().trim();
+		
+		try {
+			int T1 = Integer.parseInt(inputT1);
+			int alfa = Integer.parseInt(inputAlfa);
+			
+			int anno = Integer.parseInt(txtAnno.getText().trim());
+			
+			if(T1 < 0 || T1 > 365) {
+				txtResult.appendText("T1 dev'essere un intero compreso tra 0 e 365.");
+			}
+			if(alfa < 0 || alfa > 365) {
+				txtResult.appendText("Alfa dev'essere un intero compreso tra 0 e 100.");
+			}
+			
+			model.simula(T1, alfa, anno);
+		}
+		
+		catch(NumberFormatException nfe) {
+			txtResult.appendText("Inserire un numero tra 0 e 365.");
+		}
 
 	}
 
@@ -79,6 +143,10 @@ public class NewUfoSightingsController {
 
 	public void setModel(Model model) {
 		this.model = model;
-
+		btnCreaGrafo.setDisable(true);
+		cmbBoxForma.setDisable(true);
+		txtT1.setDisable(true);
+		txtAlfa.setDisable(true);
+		btnSimula.setDisable(true);
 	}
 }
